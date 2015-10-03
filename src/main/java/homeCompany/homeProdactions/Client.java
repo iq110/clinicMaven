@@ -1,12 +1,12 @@
 package homeCompany.homeProdactions;
 
+import homeCompany.homeProdactions.Exceptions.ClientHasNoPetsException;
+import homeCompany.homeProdactions.Exceptions.NoPetsWithThisNameException;
+import homeCompany.homeProdactions.Exceptions.WrongChoicesTypeOfPetException;
 import homeCompany.homeProdactions.Pets.Cat;
 import homeCompany.homeProdactions.Pets.Dog;
 import homeCompany.homeProdactions.Pets.Pet;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 
 /**
@@ -49,24 +49,22 @@ public class Client {
      * @param petName
      * @return pet's name if OK, "null" if clients has no pet with this name
      */
-    public Pet getPetByName(String petName) {
+    public Pet getPetByName(String petName) throws ClientHasNoPetsException, NoPetsWithThisNameException {
         if (pets.size() == 0) {
-            System.out.println("Client Has No Pets!");
-            return null;
+            throw new ClientHasNoPetsException();
         }
         for (Pet p : this.pets) {
             if (p.getName().equals(petName))
                 return p;
         }
-        System.out.println("Client Has No Pet With This Name!");
-        return null;
+        throw new NoPetsWithThisNameException();
     }
     /**
      * print client's pets on console
      */
-    public void printPets() {
+    public void printPets() throws ClientHasNoPetsException {
         if(pets.size()==0)
-            System.out.println("Client Has No Pets!");
+            throw new ClientHasNoPetsException();
         else
             for (Pet p : pets) {
             System.out.println(p.getName());
@@ -74,7 +72,7 @@ public class Client {
     }
 
 
-    public Pet addPetToClient(int typeOfPet, String petName) {
+    public Pet addPetToClient(int typeOfPet, String petName) throws WrongChoicesTypeOfPetException {
         Pet newPet = null;
             if (typeOfPet == 1) {
                 newPet = new Cat(petName);
@@ -86,8 +84,7 @@ public class Client {
                 this.pets.add(newPet);
             }
             else
-                System.out.println("Wrong Choices Type Of Pet!");
-
+               throw new WrongChoicesTypeOfPetException();
         return newPet;
     }
 
@@ -98,7 +95,7 @@ public class Client {
      * @param petName
      * @return
      */
-    public boolean removePet(String petName) {
+    public boolean removePet(String petName) throws NoPetsWithThisNameException {
         for (Pet p : pets) {
             if (p.getName().equals(petName)) {
                 pets.remove(p);
@@ -106,8 +103,7 @@ public class Client {
                 return true;
             }
         }
-        System.out.println("Client Has No Pet With This Name!");
-        return false;
+        throw new NoPetsWithThisNameException();
     }
 
     public void removeAllPets(){

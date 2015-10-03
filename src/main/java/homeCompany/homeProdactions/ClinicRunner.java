@@ -1,7 +1,7 @@
 package homeCompany.homeProdactions;
 
+import homeCompany.homeProdactions.Exceptions.*;
 import homeCompany.homeProdactions.Pets.Pet;
-import homeCompany.homeProdactions.Clinic;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -18,17 +18,14 @@ public class ClinicRunner {
     protected Clinic clinic = new Clinic();//clinic object for work
     protected Client client; //selected client
     protected Pet pet; //selected pet
-    protected int lastLaunchedSelectedFunctionCrutch;// Crutch for exceptions
+    protected int lastLaunchedSelectedFunctionCrutch = 0;// Crutch for exceptions
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws Exception {
+        runner.startWorking();
+    }
+
+    public void startWorking() throws Exception {
         try {
-            runner.doClinicAction(runner.selectClinicActions());
-        }
-
-        //because possible exceptions - only input exceptions
-        catch (Exception e) {
-            System.out.println("Error Input!!!");
-            System.out.println();
             switch (runner.lastLaunchedSelectedFunctionCrutch) {
                 case (0):
                     runner.doClinicAction(runner.selectClinicActions());
@@ -42,16 +39,22 @@ public class ClinicRunner {
                     runner.doPetAction(runner.selectPetActions());
                     break;
             }
+        }catch (NumberFormatException e){
+            System.out.println("Wrong type!!!");
+            runner.startWorking();
+
+        }catch (Exception e){
+            System.out.println(e.getMessage());
+            runner.startWorking();
         }
     }
-
 
     /**
      * Method giving delay while user reads information
      *
      * @throws IOException - input exceptions
      */
-    private void waitUntilKeyNotPressed() throws IOException {
+    private void waitWhileKeyNotPressed() throws IOException {
         System.out.println("Press Enter To Continue");
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
         reader.readLine();
@@ -78,8 +81,8 @@ public class ClinicRunner {
         System.out.println("4. Add Client");
         System.out.println("0. Shutdown");
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-        int choise = Integer.parseInt(reader.readLine());
-        return choise;
+        int choice = Integer.parseInt(reader.readLine());
+        return choice;
     }
     /**
      * Do  Main selected actions
@@ -87,12 +90,12 @@ public class ClinicRunner {
      * @param choice - values action
      * @throws IOException - input exceptions
      */
-    public void doClinicAction(int choice) throws IOException {
+    public void doClinicAction(int choice) throws Exception {
         switch (choice) {
             case (1):
                 //Print All Clients And Them Pets
                 clinic.printClientsAndThemPets();
-                waitUntilKeyNotPressed();
+                waitWhileKeyNotPressed();
                 doClinicAction(selectClinicActions());
                 break;
 
@@ -100,7 +103,7 @@ public class ClinicRunner {
                 //Print Clients By Pet Name
                 System.out.println("Enter Pet's Name : ");
                 clinic.printClientsByPetName(readString());
-                waitUntilKeyNotPressed();
+                waitWhileKeyNotPressed();
                 doClinicAction(selectClinicActions());
                 break;
 
@@ -131,8 +134,7 @@ public class ClinicRunner {
                 //Shutdown
                 System.exit(0);
             default:
-                System.out.println("Wrong Input! Please Repeat!");
-                doClinicAction(selectClinicActions());
+                throw new WrongInputException();
         }
     }
 
@@ -143,7 +145,7 @@ public class ClinicRunner {
      * @return The values ​​of the chosen user actions
      * @throws IOException - input exceptions
      */
-    public int selectClientActions() throws IOException {
+    public int selectClientActions() throws Exception {
         lastLaunchedSelectedFunctionCrutch = 1;
         System.out.println("Client " + client.getName() + " Selected!");
         System.out.println("Enter type of actions :");
@@ -163,12 +165,12 @@ public class ClinicRunner {
      * @param choice - values action
      * @throws IOException - input exceptions
      */
-    public void doClientAction(int choice) throws IOException {
+    public void doClientAction(int choice) throws Exception {
         switch (choice) {
             case (1):
                 //Print All Client's Pets
                 client.printPets();
-                waitUntilKeyNotPressed();
+                waitWhileKeyNotPressed();
                 doClientAction(selectClientActions());
                 break;
 
@@ -176,6 +178,8 @@ public class ClinicRunner {
                 //Add Pet To Client
                 System.out.println("Enter Type Of Pet (1 - Cat / 2 - Dog) :");
                 int typeOfPet = Integer.parseInt(readString());
+                if((typeOfPet!=1)&&(typeOfPet!=2))
+                    throw new WrongInputException();
                 System.out.println("Enter Pet's Name :");
                 pet = client.addPetToClient(typeOfPet, readString());
                 doClientAction(selectClientActions());
@@ -211,9 +215,7 @@ public class ClinicRunner {
                 break;
 
             default:
-                System.out.println("Wrong Input! Please Repeat!");
-                doClientAction(selectClientActions());
-                break;
+                throw new WrongInputException();
         }
     }
 
@@ -241,7 +243,7 @@ public class ClinicRunner {
      * @param choice - values action
      * @throws IOException - input exceptions
      */
-    public void doPetAction(int choice) throws IOException {
+    public void doPetAction(int choice) throws Exception {
         switch (choice) {
             case (1):
                 //Change Pet's Name
@@ -261,9 +263,7 @@ public class ClinicRunner {
                 break;
 
             default:
-                System.out.println("Wrong Input! Please Repeat!");
-                doPetAction(selectPetActions());
-
+                throw new WrongInputException();
         }
     }
 }

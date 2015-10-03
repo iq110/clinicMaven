@@ -1,8 +1,8 @@
 package homeCompany.homeProdactions;
 
+import homeCompany.homeProdactions.Exceptions.*;
 import homeCompany.homeProdactions.Pets.Pet;
 
-import java.io.IOException;
 import java.util.ArrayList;
 
 /**
@@ -28,46 +28,40 @@ public class Clinic {
     }
 
 
-    public Client getClientByName(String clientName) {
+    public Client getClientByName(String clientName) throws UserException {
         if (hasClient(clientName)) {
             for (Client c : clients) {
                 if (c.getName().equals(clientName))
                     return c;
             }
         }
-        System.out.println("You Have No Client With This Name!!!");
-        return null;
+        throw new UserException("You Have No Client With This Name!!!");
     }
 
 
-    public boolean changeClientName(Client client, String newName) {
+    public boolean changeClientName(Client client, String newName) throws AddExcisingNameException, UserException {
         if (!client.equals(null)) {
             if (!hasClient(newName)) {
                 client.setName(newName);
                 return true;
-            } else {
-                System.out.println("This Name Already Used");
-                return false;
-            }
+            } else throw new AddExcisingNameException();
         }
-        System.out.println("Client Not Selected!!!");
-        return false;
+        throw new UserException("Client Not Selected!!!");
     }
     public boolean changePetName(Pet pet, String newName) {
         pet.setName(newName);
         return true;
     }
 
-    public Client addClient(String clientName) {
+    public Client addClient(String clientName) throws AddExcisingNameException {
         if (!hasClient(clientName)) {
             Client newClient = new Client(clientName);
             this.clients.add(newClient);
             return newClient;
         }
-        System.out.println("This Client Already Exist!");
-        return null;
+        throw new AddExcisingNameException();
     }
-    public boolean removeClient(String clientName) {
+    public boolean removeClient(String clientName) throws NoPetsWithThisNameException {
         for (Client c : clients)
             if (c.getName().equals(clientName)) {
                 c.removeAllPets();
@@ -75,12 +69,14 @@ public class Clinic {
                 System.out.println(clientName + " Was Removed!");
                 return true;
             }
-        System.out.println("You Have No Pets With This Name!!");
-        return false;
+        throw new NoPetsWithThisNameException();
     }
 
 
-    public void printClientsByPetName(String petName) {
+    public void printClientsByPetName(String petName) throws NoPetsWithThisNameException, NoClientsExceptions {
+        if (this.clients.isEmpty())
+            throw new NoClientsExceptions();
+
         int countOfPrints = 0;//if function will print no one client
         // it will say to user about this
         for (Client c : this.clients) {
@@ -90,11 +86,11 @@ public class Clinic {
             }
         }
         if (countOfPrints == 0)
-            System.out.println("You Have No Pets With This Name!!");
+            throw new NoPetsWithThisNameException();
     }
-    public void printClientsAndThemPets() {
+    public void printClientsAndThemPets() throws NoClientsExceptions, ClientHasNoPetsException {
         if (this.clients.isEmpty())
-            System.out.println("You Have No Clients!");
+            throw new NoClientsExceptions();
         for (Client c : clients) {
             System.out.println(c.getName());
             c.printPets();
